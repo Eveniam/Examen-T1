@@ -1,0 +1,84 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BoyController : MonoBehaviour
+{
+    private Rigidbody2D _rb;
+    private Animator _anim;
+    private SpriteRenderer _sr;
+    
+    public float JumpForce = 10;
+    public float Velocity = 10;
+    
+    private static readonly string ANIMATOR_STATE = "Estado";
+    private static readonly int ANIMATOR_JUMP = 2;
+    private static readonly int ANIMATOR_IDLE = 0;
+    private static readonly int ANIMATOR_RUN = 1;
+    private static readonly int ANIMATOR_SLICE = 3;
+    private static readonly int ANIMATOR_DEAD = 4;
+
+    private static readonly int RIGHT = 1;
+    private static readonly int LEFT = -1;
+
+    void Start()
+    {
+        _rb = GetComponent<Rigidbody2D>();
+        _anim = GetComponent<Animator>();
+        _sr = GetComponent<SpriteRenderer>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        _rb.velocity = new Vector2(0,_rb.velocity.y);
+        ChangeAnimation(ANIMATOR_IDLE);
+
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            Desplazarse(RIGHT);
+        }
+        
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            Desplazarse(LEFT);
+        }
+
+        if (Input.GetKey(KeyCode.C))
+        {
+            Deslizarse();
+        }
+
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            _rb.AddForce(Vector2.up * JumpForce, ForceMode2D.Impulse);
+            ChangeAnimation(ANIMATOR_JUMP);
+        }
+    }
+
+    /*private void OnTriggerEnter2D(Collider2D col)
+    {
+        var tag = col.gameObject.tag;
+        if (tag == "Muerte")
+        {
+            ChangeAnimation(ANIMATOR_DEAD);
+        }
+    }*/
+
+    private void Deslizarse()
+    {
+        ChangeAnimation(ANIMATOR_SLICE);
+    }
+    private void Desplazarse(int position)
+    {
+        _rb.velocity = new Vector2(Velocity * position, _rb.velocity.y);
+        _sr.flipX = position == LEFT;
+        ChangeAnimation(ANIMATOR_RUN);
+    }
+
+    private void ChangeAnimation(int animation)
+    {
+        _anim.SetInteger(ANIMATOR_STATE, animation);
+    }
+}
